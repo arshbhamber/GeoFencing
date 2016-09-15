@@ -3,7 +3,6 @@ package com.example.arsh.geofencing;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
@@ -11,10 +10,6 @@ import android.util.Log;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
-
-import java.util.List;
-
-import static android.content.ContentValues.TAG;
 
 /**
  * Created by arsh on 9/9/16.
@@ -68,6 +63,13 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
         GeofencingEvent geofencingEvent = GeofencingEvent.fromIntent(intent);
 
+        String notifContent = "";
+
+        if(geofencingEvent.getGeofenceTransition() == Geofence.GEOFENCE_TRANSITION_ENTER)
+            notifContent = "Entered: "+ geofencingEvent.getTriggeringGeofences().get(0).getRequestId();
+        else if(geofencingEvent.getGeofenceTransition() == Geofence.GEOFENCE_TRANSITION_EXIT)
+            notifContent = "Exited: "+ geofencingEvent.getTriggeringGeofences().get(0).getRequestId();
+
         NotificationCompat.Builder b = new NotificationCompat.Builder(this);
 
         b.setAutoCancel(true)
@@ -76,7 +78,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 .setSmallIcon(R.drawable.common_full_open_on_phone)
                 .setTicker("Hearty365")
                 .setContentTitle("Default notification")
-                .setContentText("Current Location : " + geofencingEvent.getTriggeringGeofences().get(0).getRequestId())
+                .setContentText(notifContent)
                 .setDefaults(Notification.DEFAULT_LIGHTS| Notification.DEFAULT_SOUND)
                 .setContentInfo("Info");
 
