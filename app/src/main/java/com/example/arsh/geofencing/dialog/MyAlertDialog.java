@@ -5,13 +5,15 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.arsh.geofencing.R;
@@ -30,7 +32,7 @@ public class MyAlertDialog extends Dialog {
 
     GoogleApiClient mGoogleApiClient;
 
-    Button btnAddLocation ;
+    TextView tvAddLocation ;
 
     Location currentLocation;
 
@@ -54,7 +56,7 @@ public class MyAlertDialog extends Dialog {
         etLat = (EditText)findViewById(R.id.etLat);
         etLong = (EditText)findViewById(R.id.etLong);
         etLocationTag = (EditText)findViewById(R.id.etLocationTag);
-        btnAddLocation = (Button)findViewById(R.id.btnAddLocation);
+        tvAddLocation = (TextView) findViewById(R.id.tvAddLocation);
 
         if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             // TODO: Consider calling
@@ -68,11 +70,15 @@ public class MyAlertDialog extends Dialog {
         }
         currentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            Toast.makeText(getContext(),"Elapsed time = " + (SystemClock.elapsedRealtimeNanos() -  currentLocation.getElapsedRealtimeNanos())/1000000 + "milliseconds", Toast.LENGTH_SHORT ).show();
+        }
+
 
         etLat.setText(currentLocation.getLatitude() + "");
         etLong.setText(currentLocation.getLongitude() + "");
 
-        btnAddLocation.setOnClickListener(new View.OnClickListener() {
+        tvAddLocation.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {

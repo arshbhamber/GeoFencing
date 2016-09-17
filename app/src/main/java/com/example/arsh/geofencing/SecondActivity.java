@@ -111,7 +111,7 @@ public class SecondActivity extends AppCompatActivity implements GoogleApiClient
 
             geofenceArrayList.add(new Geofence.Builder()
 
-                    .setRequestId(tag)
+                    .setRequestId(simpleGeofence.getId())
 
                     .setCircularRegion(
                             simpleGeofence.getLatitude(),
@@ -156,6 +156,7 @@ public class SecondActivity extends AppCompatActivity implements GoogleApiClient
                     @Override
                     public void onTagAdded(Location loc, String tag) {
 
+                        LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient, getGeofencePendingIntent());
 
                         Bundle extras = new Bundle();
                         extras.putString("tag", tag);
@@ -170,12 +171,13 @@ public class SecondActivity extends AppCompatActivity implements GoogleApiClient
                         SimpleGeofence location = new SimpleGeofence(tag, loc.getLatitude(), loc.getLongitude(), 150, 1000000, Geofence.GEOFENCE_TRANSITION_ENTER |
                                 Geofence.GEOFENCE_TRANSITION_EXIT);
 
+                        geofences.add(location);
 
+                        values.put(DBHandler._ID,geofences.size() -1);
                         values.put(DBHandler.COLUMN_NAME_TITLE, gson.toJson(location));
 
                         db.insert(DBHandler.TABLE_NAME, null, values);
 
-                        geofences.add(location);
 
                         geofenceArrayList.add(new Geofence.Builder()
 
@@ -255,9 +257,20 @@ public class SecondActivity extends AppCompatActivity implements GoogleApiClient
         }else {
 
             LocationRequest locationRequest = new LocationRequest();
-            locationRequest.setInterval(10000).setFastestInterval(5000).setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY).setSmallestDisplacement(50f);
+            locationRequest.setInterval(60000).setFastestInterval(50000).setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY).setSmallestDisplacement(50f);
 
             LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, locationRequest, this);
+
+
+            if(geofenceArrayList.size() > 0){
+
+                LocationServices.GeofencingApi.addGeofences(
+                        mGoogleApiClient,
+                        getGeofencingRequest(),
+                        getGeofencePendingIntent()
+                ).setResultCallback(SecondActivity.this);
+            }
+
         }
     }
 
@@ -369,7 +382,7 @@ public class SecondActivity extends AppCompatActivity implements GoogleApiClient
 
                     }else{
 
-                        tvRegister.setText("UnRegister");
+                        tvRegister.setText("Unregister");
 
                         geofenceArrayList.add(i,new Geofence.Builder()
 
@@ -442,11 +455,9 @@ public class SecondActivity extends AppCompatActivity implements GoogleApiClient
                             getGeofencePendingIntent()
                     ).setResultCallback((SecondActivity)mContext);
 
-                    Gson gson = new Gson();
-
 
                     SQLiteDatabase db= dbHandler.getWritableDatabase();
-                    db.execSQL("DELETE FROM "+DBHandler.TABLE_NAME+" WHERE "+DBHandler.COLUMN_NAME_TITLE+"='"+gson.toJson(getItem(i))+"'");
+                    db.execSQL("DELETE FROM "+DBHandler.TABLE_NAME+" WHERE "+DBHandler._ID+"='"+ i+"'");
                     db.close();
 
 

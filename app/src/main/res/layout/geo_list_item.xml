@@ -59,6 +59,7 @@
                    android:layout_height="wrap_content"
                    android:text="Unregister"
                    android:textSize="20sp"
+                   android:visibility="gone"
                    android:layout_weight="0.5"
                    android:textColor="#068D45"/>
 
@@ -68,7 +69,8 @@
                    android:layout_height="wrap_content"
                    android:text="@string/remove"
                    android:layout_weight="0.5"
-                   android:textSize="20sp"
+                   android:layout_margin="5dp"
+                   android:textSize="18sp"
                    android:textColor="#ff0000"
                    />
 
